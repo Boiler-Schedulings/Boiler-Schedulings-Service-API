@@ -1,6 +1,7 @@
 from flask import Flask, jsonify, request
 from past_grades_other import ExcelDataProcessorOther
 from past_grades import ExcelDataProcessor
+from rate_my_professor import professor
 import json
 
 app = Flask(__name__)
@@ -94,7 +95,24 @@ def get_average_grade_of_class():
     json_results = json.dumps(results, default=set_default)
 
     return jsonify(json_results)
-# Add more routes for other functions as needed
+
+@app.route('/rate_my_professor', methods=['GET', 'POST'])
+def rate_my_professor():
+    if request.method == 'GET':
+        teacher_name = request.args.get('teacher_name')
+        teacher_name = teacher_name.replace(',', ' ')
+    elif request.method == 'POST':
+        data = request.get_json()
+        teacher_name = data.get('teacher_name')
+        teacher_name = teacher_name.replace(',', ' ')
+    else:
+        return jsonify({'error': 'Invalid request method.'}), 400
+
+    results = professor(teacher_name)
+
+    json_results = json.dumps(results, default=set_default)
+
+    return jsonify(json_results)
 
 if __name__ == '__main__':
     app.run(debug=True)
