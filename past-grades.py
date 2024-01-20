@@ -36,12 +36,12 @@ class ExcelDataProcessor:
         if selected_rows.empty:
             print(f"Error: No data found for teacher '{teacher_name}', course '{course_number}', and subject '{subject}'.")
             return None
-
         selected_grades = selected_rows[['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E', 'F']].fillna(0).values
         grade_to_gpa = np.array([4.0, 3.7, 4.0, 4.0, 3.0, 2.7, 3.3, 2.0, 1.7, 2.3, 1.0, 0.7, 1.3, 0.0, 0.0])
 
         # Calculate average GPA using the dot product
-        average_gpa = (selected_grades * grade_to_gpa).sum()
+
+        average_gpa = (selected_grades * grade_to_gpa).sum()/len(selected_grades)
         return average_gpa
 
     def sort_teachers_by_average_grade(self, course_number, subject):
@@ -101,6 +101,8 @@ sheet_name = 'Spring 2023'
 data_processor = ExcelDataProcessor(file_path, sheet_name)
 info = data_processor.get_info_by_subject_and_course(20300, 'AAE')
 average_class_grade = data_processor.get_average_grade_of_class(20300, 'AAE')
+teacher = data_processor.get_average_grade_by_teacher('De Camargo Branco, Danilo', 20400,'AAE')
+print(teacher)
 if average_class_grade is not None:
     print(f"Average GPA of the Class: {average_class_grade}")
 
