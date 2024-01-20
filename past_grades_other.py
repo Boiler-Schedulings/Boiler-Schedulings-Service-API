@@ -24,13 +24,13 @@ class ExcelDataProcessorOther:
             print("Error: Data not loaded.")
             return None
 
-        headers = data_processor.excel_data.columns.tolist()
         course_subject_rows = (self.excel_data[('Unnamed: 2_level_0', 'Course Number')]== course_number) & (self.excel_data[('Unnamed: 0_level_0', 'Subject')].str.strip().str.lower() == subject.lower())
         print(course_subject_rows)
         selected_info = self.excel_data.loc[
             course_subject_rows, (['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E',
                                   'F'], '% of Total')].values
         return selected_info
+
     def get_average_grade_by_teacher(self, teacher_name, course_number, subject):
         if self.excel_data is None:
             print("Error: Data not loaded.")
