@@ -1,11 +1,11 @@
 import google.generativeai as genai
 from vectordb import process_data_and_query
 
-genai.configure(api_key='AIzaSyCCrHwe8X7xKJYKpqQhJwBOqaMqB8R-GW8')
+genai.configure(api_key='KEY')
 model = genai.GenerativeModel('gemini-pro')
 
 data_dir = "data/course_docs_emb.json"
-query_texts = ["I want a course about the software development working with a team."]
+query_texts = [str(input("Enter your query: "))]
 n_results = 6
 courses = process_data_and_query(data_dir, query_texts, n_results)
 
