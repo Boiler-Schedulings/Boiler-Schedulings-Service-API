@@ -1,46 +1,31 @@
+import chromadb
+import numpy as np
 import json
-data_path = "data/courses.md"
+
+data_dir = "data/course_docs_emb.json"
+chroma_client = chromadb.Client()
+
+collection = chroma_client.create_collection(name="course_catalog")
+
 documents = []
-with open(data_path, "r") as file:
-    next_line_is_description = False
-    course_title = ""
-    course_description = ""
-    course_code = ""
-    for line in file:
-        if line == "\n":
-            continue
-        # print(line)
-        if "##" in line:
-            line = line.lstrip("## ").rstrip("\n").split(" - ")
-            if (len(line) < 2): continue
-            print(line)
-            course_code = line[0]
-            course_title = line[1]
-            next_line_is_description = True
-            continue
-        if next_line_is_description:
-            line = line.rstrip("\n")
-            second_period_idx = line.find('.', line.find('.') + 1)
-            course_description = line[second_period_idx + 1:].strip()
-            # print(course_description)
-            credit_hours_sentence = line[:second_period_idx]
-            # print(credit_hours_sentence)
-            first_colon_idx = credit_hours_sentence.find(':')
-            credit_hours = credit_hours_sentence[first_colon_idx + 1:].strip().replace("to", " - ")
-            documents.append({
-                "code": course_code,
-                "title": course_title,
-                "credit_hours": credit_hours,
-                "description": course_description,
-            })
-            course_title = ""
-            course_description = ""
-            course_code = ""
-            next_line_is_description = False
 
-# Specify the path to the JSON file
-json_file_path = "data/course_docs.json"
+with open(data_dir) as json_file:
+   documents = json.load(json_file)
 
-# Write the list of dictionaries to the JSON file
-with open(json_file_path, 'w') as json_file:
-    json.dump(documents, json_file, indent=2)
+embeddings = [doc["embeddings"] for doc in documents]
+docs = [doc["chunk"] for doc in documents]
+ids = [f"id{i}" for i in range(len(embeddings))]
+
+collection.add(
+    embeddings=embeddings,
+    documents=docs,
+    ids=ids
+)
+
+results = collection.query(
+    query_texts=["I want to learn about"],
+    n_results=4
+)
+print("Total Documents", len(embeddings))
+for document in results['documents'][0]:
+   print(document, "\n")
