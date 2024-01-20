@@ -5,22 +5,37 @@ with open(data_path, "r") as file:
     next_line_is_description = False
     course_title = ""
     course_description = ""
+    course_code = ""
     for line in file:
         if line == "\n":
             continue
-        print(line)
+        # print(line)
         if "##" in line:
-            course_title = line.lstrip("## ").rstrip("\n")
+            line = line.lstrip("## ").rstrip("\n").split(" - ")
+            if (len(line) < 2): continue
+            print(line)
+            course_code = line[0]
+            course_title = line[1]
             next_line_is_description = True
             continue
         if next_line_is_description:
-            course_description = line.rstrip("\n")
+            line = line.rstrip("\n")
+            second_period_idx = line.find('.', line.find('.') + 1)
+            course_description = line[second_period_idx + 1:].strip()
+            # print(course_description)
+            credit_hours_sentence = line[:second_period_idx]
+            # print(credit_hours_sentence)
+            first_colon_idx = credit_hours_sentence.find(':')
+            credit_hours = credit_hours_sentence[first_colon_idx + 1:].strip().replace("to", " - ")
             documents.append({
+                "code": course_code,
                 "title": course_title,
-                "description": course_description
+                "credit_hours": credit_hours,
+                "description": course_description,
             })
             course_title = ""
             course_description = ""
+            course_code = ""
             next_line_is_description = False
 
 # Specify the path to the JSON file
