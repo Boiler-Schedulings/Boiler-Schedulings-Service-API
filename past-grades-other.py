@@ -21,7 +21,7 @@ class ExcelDataProcessor:
             print("Error: Data not loaded.")
             return None
         grade_columns = ['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E', 'F']
-
+        print
         course_subject_rows = (self.excel_data.iloc[0]['Course Number'] == course_number) & (
                     self.excel_data.iloc[0]['Subject'].str.strip().str.lower() == subject.lower())
         print(course_subject_rows)
