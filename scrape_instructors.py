@@ -10,10 +10,16 @@
 import requests
 import praw
 import json
+
+from dotenv import load_dotenv
+
+load_dotenv()
+reddit_password = os.getenv("REDDIT_PASS")
+
 reddit = praw.Reddit(
     client_id="W9tvH4aQUgjjfg3vG5SRiQ",
     client_secret="47gt5VFEictQUWbeCXr9i0h6Qb3EGQ",
-    password="moocow22pig",
+    password=reddit_password,
     user_agent="script by u/Longjumping_Tea_3516",
     username="Longjumping_Tea_3516",
 )

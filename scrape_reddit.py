@@ -17,7 +17,7 @@ rpurdue = reddit.subreddit("Purdue")
 
 
 course_docs = []
-with open("data/course_docs.json") as json_file:
+with open("data/course_docs.json", "r") as json_file:
    course_docs = json.load(json_file)
 
 
@@ -31,29 +31,41 @@ for course in course_docs:
     # print(query)
     queries.append(query)
 
-all_docs = []
-for query in queries:
-    print(query)
-    code = query[:query.index('or')].strip()
-    for submission in rpurdue.search(query, sort='new'):
-        # add post to docs
-        submission_title = submission.title
-        submission_body = submission.selftext
-        doc = f"POST_TITLE: {submission_title} | BODY: {submission_body}"
-        all_docs.append(doc)
-        print(doc)
-        # get comments of the post
-        submission.comment_sort = "top"
-        submission.comments.replace_more(limit=0)
-        comments = submission.comments.list()
-        for comment in comments:
-            doc = f"POST_TITLE: {submission_title} | COMMENT_BODY: {comment.body}"
-            all_docs.append({
-                "code": code,
-                "chunk": doc
-            })
-            print(doc)
-
+last_completed_query = queries[3260 + 507]
+print("last completed: ", last_completed_query)
+start_scraping = False
+with open("data/reddit_docs.jsonl", "a") as file:
+    all_docs = []
+    for query in queries:
+        if query == last_completed_query:
+            start_scraping = True
+            continue
+        if not start_scraping: continue
+        # print(query)
+        code = query[:query.index('or')].strip()
+        print(code)
+        for submission in rpurdue.search(query, sort='new'):
+            # add post to docs
+            submission_title = submission.title
+            submission_body = submission.selftext
+            doc = f"POST_TITLE: {submission_title} | BODY: {submission_body}"
+            all_docs.append(doc)
+            # print(doc)
+            # get comments of the post
+            submission.comment_sort = "top"
+            submission.comments.replace_more(limit=0)
+            comments = submission.comments.list()
+            for comment in comments:
+                doc = f"POST_TITLE: {submission_title} | COMMENT_BODY: {comment.body}"
+                entry = {
+                    "code": code,
+                    "chunk": doc
+                }
+                all_docs.append(entry)
+                file.write(json.dumps(entry))
+                file.write("\n")
+                # print(doc)
+        file.flush()
 
 # with open("data/reddit_docs.json", 'w') as file:
 #     json.dump(all_docs, file, indent=2)
