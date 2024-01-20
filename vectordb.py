@@ -23,7 +23,7 @@ collection.add(
 )
 
 results = collection.query(
-    query_texts=["I want to learn about"],
+    query_texts=["I want a course about the applications of corn that is 1 credit."],
     n_results=4
 )
 print("Total Documents", len(embeddings))
