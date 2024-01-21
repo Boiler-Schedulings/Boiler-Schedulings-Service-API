@@ -42,7 +42,7 @@ with open(data_path, "r") as file:
             next_line_is_description = False
 
 # Specify the path to the JSON file
-json_file_path = "data/course_docs.json"
+json_file_path = "data/course_docs_2.json"
 
 # Write the list of dictionaries to the JSON file
 with open(json_file_path, 'w') as json_file:
