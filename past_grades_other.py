@@ -11,9 +11,16 @@ class ExcelDataProcessorOther:
         try:
             self.excel_data = pd.read_excel(self.file_path, self.sheet_name, header=[7,8])
 
-            self.excel_data = self.excel_data.ffill(axis=0)
-            self.excel_data = self.excel_data.fillna(0)
+            selected_columns = ['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E', 'F', 'I',
+                                'P', 'PI', 'S', 'SI', 'U', 'W', 'WF']
+
+            # Create a list of tuples with original column names and their corresponding '% of Total' column names
+            column_tuples = [(column, '% of Total') for column in selected_columns]
+
+            self.excel_data[column_tuples] = self.excel_data[column_tuples].fillna(0)
             self.excel_data = self.excel_data.ffill(axis=1)
+            self.excel_data = self.excel_data.ffill(axis=0)
+
 
         except FileNotFoundError:
             print(f"Error: File '{self.file_path}' not found.")
@@ -25,7 +32,6 @@ class ExcelDataProcessorOther:
             return None
 
         course_subject_rows = (self.excel_data[('Unnamed: 2_level_0', 'Course Number')]== course_number) & (self.excel_data[('Unnamed: 0_level_0', 'Subject')].str.strip().str.lower() == subject.lower())
-        print(course_subject_rows)
         selected_info = self.excel_data.loc[
             course_subject_rows, (['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E',
                                   'F'], '% of Total')].values
@@ -56,7 +62,6 @@ class ExcelDataProcessorOther:
 
         teachers = self.excel_data.loc[(self.excel_data[('Unnamed: 2_level_0', 'Course Number')] == course_number) & (
                     self.excel_data[('Unnamed: 0_level_0', 'Subject')].str.strip().str.lower() == subject.lower()), ('Unnamed: 8_level_0', 'Instructor')].unique()
-
         if len(teachers) == 0:
             print(f"Error: No teachers found for course '{course_number}' and subject '{subject}'.")
             return None  # No teachers found for the specified course and subject
@@ -100,24 +105,28 @@ class ExcelDataProcessorOther:
             return None
 
         return total_average_gpa / total_teachers
+
 """
 # Example usage:
 file_path = r"Course Grade Distribution - Term Sum16 through Spring23.xlsx"
-sheet_name = 'Fall 2022'
+sheet_name = 'Summer 2022'
 
 data_processor = ExcelDataProcessorOther(file_path, sheet_name)
-course_number = 20300
+course_number = 20401
 subject = 'AAE'
 
-teacher = data_processor.get_average_grade_by_teacher('Hassan, Hashim', 20300, 'AAE')
+stuff = data_processor.get_info_by_subject_and_course(49600, 'AT')
+
+teacher = data_processor.get_average_grade_by_teacher('Ropp, Timothy D.', 49600, 'AT')
 print('......')
 print(teacher)
-average_class_grade = data_processor.get_average_grade_of_class(20300, 'AAE')
+average_class_grade = data_processor.get_average_grade_of_class(49600, 'AT')
 if average_class_grade is not None:
     print(f"Average GPA of the Class: {average_class_grade}")
 
-sorted_teachers = data_processor.sort_teachers_by_average_grade(20300, 'AAE')
+sorted_teachers = data_processor.sort_teachers_by_average_grade(49600, 'AT')
 if sorted_teachers is not None:
     print("Sorted Teachers by Average GPA:")
     for teacher_info in sorted_teachers:
-        print(f"Instructor: {teacher_info['Instructor']}, Average GPA: {teacher_info['Average GPA']}")"""
+        print(f"Instructor: {teacher_info['Instructor']}, Average GPA: {teacher_info['Average GPA']}")
+"""

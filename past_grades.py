@@ -10,6 +10,10 @@ class ExcelDataProcessor:
     def load_data(self):
         try:
             self.excel_data = pd.read_excel(self.file_path, self.sheet_name, header=7)
+            selected_columns = ['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E', 'F', 'I',
+                                'N', 'NS', 'P', 'PI', 'S', 'SI', 'U', 'W', 'WF', 'WN']
+
+            self.excel_data[selected_columns] = self.excel_data[selected_columns].fillna(0)
             self.excel_data = self.excel_data.ffill(axis=0)
         except FileNotFoundError:
             print(f"Error: File '{self.file_path}' not found.")
@@ -41,7 +45,7 @@ class ExcelDataProcessor:
 
         # Calculate average GPA using the dot product
 
-        average_gpa = (selected_grades * grade_to_gpa).sum()/len(selected_grades)
+        average_gpa = (selected_grades * grade_to_gpa).sum().sum()/len(selected_grades)
         return average_gpa
 
     def sort_teachers_by_average_grade(self, course_number, subject):
@@ -95,19 +99,19 @@ class ExcelDataProcessor:
             return None
         return total_average_gpa / total_teachers
 
-"""
+
 file_path = r"Course Grade Distribution - Term Sum16 through Spring23.xlsx"
 sheet_name = 'Spring 2023'
 
 data_processor = ExcelDataProcessor(file_path, sheet_name)
-info = data_processor.get_info_by_subject_and_course(20300, 'AAE')
-average_class_grade = data_processor.get_average_grade_of_class(20300, 'AAE')
-teacher = data_processor.get_average_grade_by_teacher('De Camargo Branco, Danilo', 20400,'AAE')
+#info = data_processor.get_info_by_subject_and_course(35201, 'AAE')
+#average_class_grade = data_processor.get_average_grade_of_class(35201, 'AAE')
+teacher = data_processor.get_average_grade_by_teacher('Mishra, Ritik K.', 20401,'AAE')
 print(teacher)
-if average_class_grade is not None:
+"""if average_class_grade is not None:
     print(f"Average GPA of the Class: {average_class_grade}")
 
-sorted_teachers = data_processor.sort_teachers_by_average_grade(20300, 'AAE')
+sorted_teachers = data_processor.sort_teachers_by_average_grade(35201, 'AAE')
 if sorted_teachers is not None:
     print("Sorted Teachers by Average GPA:")
     for teacher_info in sorted_teachers:
