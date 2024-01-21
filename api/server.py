@@ -75,9 +75,11 @@ def send_message(query):
 
 # """
 
+from flask_cors import CORS
 
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route("/catalog", methods=['GET', 'POST'])
 def catalog():
