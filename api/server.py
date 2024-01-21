@@ -14,11 +14,20 @@ with open(data_dir) as json_file:
 embeddings = [doc["embeddings"] for doc in documents]
 docs = [doc["chunk"] for doc in documents]
 ids = [str(i) for i in range(len(embeddings))]
+half = len(embeddings) // 2
+
 catalog_collection.add(
-    embeddings=embeddings,
-    documents=docs,
-    ids=ids
+    embeddings=embeddings[:half],
+    documents=docs[:half],
+    ids=ids[:half]
 )
+
+catalog_collection.add(
+    embeddings=embeddings[half:],
+    documents=docs[half:],
+    ids=ids[half:]
+)
+
 def query_course_catalog(query_texts, n_results=2):
     results = catalog_collection.query(
         query_texts=query_texts,
