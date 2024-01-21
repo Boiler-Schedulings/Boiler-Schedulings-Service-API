@@ -77,7 +77,7 @@ prompt_2 = """
 You are a friendly and helpful course scheduling expert for Purdue University. Your job is to use the given context and user query to help the user explore courses at Purdue as best as possible.
 The user may not always provide a detailed query, so do not hesitate to ask them to be more specific in order to better assist them.
 Here are some classes that may be relevant to the user's query:
-{context_str}\n
+{context_str}
 {majors_str}
 If you are not provided enough context, please ask the user to expand on their request and provide more details. Only mention courses provided in the context, never make up facts you are not very sure of.
 Here is the user's query:
@@ -100,7 +100,8 @@ def gen_context_str(course_strs, teachers_info):
         
 chat = model.start_chat(history=[])
 def send_message(query, degrees):
-    majors_str = "These are the degrees I am pursuing: ".join(degrees)
+    print(degrees)
+    majors_str = "These are the degrees I am pursuing: " + ",".join(degrees)
     relevant_docs = query_course_catalog(query)
     course_doc_objs = [documents[int(id)] for id in relevant_docs['ids'][0]]
     course_codes = [obj['code'] for obj in course_doc_objs]
@@ -110,10 +111,10 @@ def send_message(query, degrees):
     context_str = gen_context_str(course_strs, teachers_info)
     print(teachers_info)
     print()
-    print(prompt_2.format(context_str=context_str, query_str=query))
+    print(prompt_2.format(context_str=context_str, majors_str=majors_str, query_str=query))
     print()
     response = chat.send_message(
-        prompt_2.format(context_str=courses_str,majors_str=majors_str, query_str=query)
+        prompt_2.format(context_str=context_str, majors_str=majors_str, query_str=query)
     )
     return response.text
 # while True:
@@ -135,18 +136,18 @@ def send_message(query, degrees):
 
 # """
 
-# from flask_cors import CORS
+from flask_cors import CORS
 
 
-# app = Flask(__name__)
-# CORS(app)
+app = Flask(__name__)
+CORS(app)
 
-# @app.route("/catalog", methods=['GET', 'POST'])
-# def catalog():
-#     print("test")
-#     query = request.args.get('query')
-#     topk = request.args.get('topk', default=2)
-#     return query_course_catalog(query, int(topk))
+@app.route("/catalog", methods=['GET', 'POST'])
+def catalog():
+    print("test")
+    query = request.args.get('query')
+    topk = request.args.get('topk', default=2)
+    return query_course_catalog(query, int(topk))
 
 @app.route("/thread", methods=['GET'])
 def thread():
@@ -159,8 +160,8 @@ def thread():
         "history": [{"message": obj.parts[0].text, "role": obj.role} for obj in chat.history]
     }
 
-# if __name__ == '__main__':
-#     app.run(debug=True, port=8001, host="0.0.0.0")
+if __name__ == '__main__':
+    app.run(debug=True, port=8001, host="0.0.0.0")
 
 # print(get_average_grade_by_teacher("CS 18200"))
-print(send_message("I want to explore computer science. I am a first year student. Do you know any good courses that are not too hard?"))
+# print(send_message("I want to explore computer science. I am a first year student. Do you know any good courses that are not too hard?"))
