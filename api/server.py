@@ -17,11 +17,20 @@ with open(data_dir) as json_file:
 embeddings = [doc["embeddings"] for doc in documents]
 docs = [doc["chunk"] for doc in documents]
 ids = [str(i) for i in range(len(embeddings))]
+half = len(embeddings) // 2
+
 catalog_collection.add(
-    embeddings=embeddings,
-    documents=docs,
-    ids=ids
+    embeddings=embeddings[:half],
+    documents=docs[:half],
+    ids=ids[:half]
 )
+
+catalog_collection.add(
+    embeddings=embeddings[half:],
+    documents=docs[half:],
+    ids=ids[half:]
+)
+
 def query_course_catalog(query_texts, n_results=2):
     results = catalog_collection.query(
         query_texts=query_texts,
@@ -68,7 +77,8 @@ prompt_2 = """
 You are a friendly and helpful course scheduling expert for Purdue University. Your job is to use the given context and user query to help the user explore courses at Purdue as best as possible.
 The user may not always provide a detailed query, so do not hesitate to ask them to be more specific in order to better assist them.
 Here are some classes that may be relevant to the user's query:
-{context_str}
+{context_str}\n
+{majors_str}
 If you are not provided enough context, please ask the user to expand on their request and provide more details. Only mention courses provided in the context, never make up facts you are not very sure of.
 Here is the user's query:
 {query_str}
@@ -89,11 +99,13 @@ def gen_context_str(course_strs, teachers_info):
     return res
         
 chat = model.start_chat(history=[])
-def send_message(query):
+def send_message(query, degrees):
+    majors_str = "These are the degrees I am pursuing: ".join(degrees)
     relevant_docs = query_course_catalog(query)
     course_doc_objs = [documents[int(id)] for id in relevant_docs['ids'][0]]
     course_codes = [obj['code'] for obj in course_doc_objs]
     course_strs = [course for course in relevant_docs['documents'][0]]
+
     teachers_info = [get_average_grade_by_teacher(course_code) for course_code in course_codes]
     context_str = gen_context_str(course_strs, teachers_info)
     print(teachers_info)
@@ -101,7 +113,7 @@ def send_message(query):
     print(prompt_2.format(context_str=context_str, query_str=query))
     print()
     response = chat.send_message(
-        prompt_2.format(context_str=context_str, query_str=query)
+        prompt_2.format(context_str=courses_str,majors_str=majors_str, query_str=query)
     )
     return response.text
 # while True:
@@ -136,15 +148,16 @@ def send_message(query):
 #     topk = request.args.get('topk', default=2)
 #     return query_course_catalog(query, int(topk))
 
-# @app.route("/thread", methods=['GET'])
-# def thread():
-#     user_message = request.args.get('message')
-#     res = send_message(user_message)
-#     print(chat.history)
-#     return {
-#         "response": res,
-#         "history": [{"message": obj.parts[0].text, "role": obj.role} for obj in chat.history]
-#     }
+@app.route("/thread", methods=['GET'])
+def thread():
+    user_message = request.args.get('message')
+    user_degrees = request.args.get('degrees')
+    res = send_message(user_message, user_degrees)
+    print(chat.history)
+    return {
+        "response": res,
+        "history": [{"message": obj.parts[0].text, "role": obj.role} for obj in chat.history]
+    }
 
 # if __name__ == '__main__':
 #     app.run(debug=True, port=8001, host="0.0.0.0")
