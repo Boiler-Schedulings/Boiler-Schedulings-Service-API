@@ -35,7 +35,8 @@ class ExcelDataProcessorOther:
         selected_info = self.excel_data.loc[
             course_subject_rows, (['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E',
                                   'F'], '% of Total')].values
-        return selected_info
+        average_values = np.mean(selected_info, axis=0)
+        return average_values
 
     def get_average_grade_by_teacher(self, teacher_name, course_number, subject):
         if self.excel_data is None:
@@ -54,6 +55,7 @@ class ExcelDataProcessorOther:
         grade_to_gpa = np.array([4.0, 3.7, 4.0, 4.0, 3.0, 2.7, 3.3, 2.0, 1.7, 2.3, 1.0, 0.7, 1.3, 0.0, 0.0])
         average_gpa = (selected_info * grade_to_gpa).sum().sum()/len(selected_info)
         return average_gpa
+
 
     def sort_teachers_by_average_grade(self, course_number, subject):
         if self.excel_data is None:

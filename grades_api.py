@@ -20,6 +20,7 @@ def set_default(obj):
         return list(obj)
     raise TypeError
 
+
 @app.route('/get_average_grade_by_teacher', methods=['GET', 'POST'])
 def get_average_grade_by_teacher():
     if request.method == 'GET':
