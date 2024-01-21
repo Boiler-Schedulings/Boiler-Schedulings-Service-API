@@ -101,7 +101,7 @@ def gen_context_str(course_strs, teachers_info):
 chat = model.start_chat(history=[])
 def send_message(query, degrees):
     print(degrees)
-    majors_str = "These are the degrees I am pursuing: " + ",".join(degrees)
+    majors_str = "These are the degrees the user is pursuing: " + degrees
     relevant_docs = query_course_catalog(query)
     course_doc_objs = [documents[int(id)] for id in relevant_docs['ids'][0]]
     course_codes = [obj['code'] for obj in course_doc_objs]
@@ -153,6 +153,7 @@ def catalog():
 def thread():
     user_message = request.args.get('message')
     user_degrees = request.args.get('degrees')
+    print("DEGREES: ", user_degrees)
     res = send_message(user_message, user_degrees)
     print(chat.history)
     return {
