@@ -52,17 +52,19 @@ def query_course_catalog(query_texts, n_results=2):
 prompt_2 = """
 You are a friendly course scheduling assistant for Purdue University. Given a user query, and some relevant classes to their query answer their question as best as posisble.
 Here are some classes that may be relevant to the user's query:
-{context_str}
+{context_str}\n
+{majors_str}
 If you are not provided enough context, please ask the user to expand on their request and provide more details.
 Here is the user's query:
 {query_str}
 """
 chat = model.start_chat(history=[])
-def send_message(query):
+def send_message(query, degrees):
     courses = query_course_catalog(query)
     courses_str = "\n".join(courses)
+    majors_str = "These are the degrees I am pursuing: ".join(degrees)
     response = chat.send_message(
-        prompt_2.format(context_str=courses_str, query_str=query)
+        prompt_2.format(context_str=courses_str,majors_str=majors_str, query_str=query)
     )
     return response.text
 # while True:
@@ -100,7 +102,8 @@ def catalog():
 @app.route("/thread", methods=['GET'])
 def thread():
     user_message = request.args.get('message')
-    res = send_message(user_message)
+    user_degrees = request.args.get('degrees')
+    res = send_message(user_message, user_degrees)
     print(chat.history)
     return {
         "response": res,
