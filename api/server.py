@@ -63,26 +63,72 @@ def get_average_grade_by_teacher(course_code):
     return results
 # res = query_course_catalog("I want to study farming.")
 # print(res)
-# prompt_1 = """
-# ### Task
-# You are an expert at formatting questions for input into a course assistant AI. Given a user input format it to be optimized for retrieval of relevant courses from a vector database.
+prompt_1 = """
+### Task
+You are an expert at formatting questions for input into a course assistant AI. Given a user input, optimize it for retrieval of relevant courses from a vector database.
 
-# ### Examples
-# Input: I am a CS major, but I want to take some easy non-stem classes to explore other subjects. What are some classes that fit this description that are also 1 or 2 credits only?
-# Output: I want to take some classes in fields such as philosophy, social science, the arts, finance, and other non-stem related fields. 1 - 2 credits.
-# Input: Is there a class about managing an industrial farming operation?
-# Output: Industrial farming operations, 
-# """
+### Examples
+Input: I'm interested in cs.
+Output: Computer science courses covering topics like programming, algorithms, machine learning, and data structures. Suitable for various levels, from introductory to advanced.
+
+Input: I want to learn about corn.
+Output: Agricultural science courses focusing on crop cultivation, with an emphasis on corn - including its biology, cultivation techniques, and its role in the global economy.
+
+Input: cs
+Output: Comprehensive range of computer science courses, including introductory programming, software engineering, artificial intelligence, and cybersecurity.
+
+Input: corn
+Output: Courses related to agronomy and plant science, specifically targeting corn cultivation, genetics, pest management, and sustainable farming practices.
+
+Input: I am a CS major, but I want to take some easy non-stem classes to explore other subjects. What are some classes that fit this description that are also 1 or 2 credits only?
+Output: Non-STEM introductory courses, suitable for CS majors, 1-2 credit hours. Options include art history, basic psychology, and introductory economics.
+
+Input: Is there a class about managing an industrial farming operation?
+Output: Courses related to agriculture, focus on industrial farming management. Topics include farm management principles, modern agricultural technology, and sustainable practices.
+
+Input: I need a course to improve my writing skills as an engineering student.
+Output: Writing enhancement courses for engineering students, focus on technical and professional writing. Includes scientific communication, technical report writing, and research documentation.
+
+Input: Looking for a beginner's course in psychology.
+Output: Introductory courses in psychology, suitable for beginners. Topics may include fundamentals of human behavior, cognitive processes, and introductory social psychology.
+"""
+
 prompt_2 = """
-You are a friendly and helpful course scheduling expert for Purdue University. Your job is to use the given context and user query to help the user explore courses at Purdue as best as possible while maintaining succinctness.
-The user may not always provide a detailed query, so do not hesitate to ask them to be more specific in order to better assist them.
-Here are some classes that may be relevant to the user's query:
+You are a course scheduling AI for Purdue University. Your task is to provide a structured response to the user's query, focusing on generating data that can be easily parsed for different APIs. The response should include specific course details, relevant majors, credit hours, and any other pertinent information based on the user's query and the provided context.
+
+Here are some classes and majors that may be relevant to the user's query:
 {context_str}
 {majors_str}
-If you are not provided enough context, please ask the user to expand on their request and provide more details. Only mention courses provided in the context, never make up facts you are not very sure of.
-Here is the user's query:
+
+User's query:
 {query_str}
+
+Structured response for API parsing:
 """
+prompt_3 = """
+Based on the structured data provided by the first prompt, this task involves summarizing the actions taken by various APIs. The summary should reflect what the first prompt identified as important, including course enrollment actions, schedule adjustments, or information retrieval.
+
+Structured response for API parsing:
+{structured_response_str}
+
+API call data:
+{api_call_data_str}
+
+Summary of actions taken:
+"""
+
+prompt_4 = """
+This task is to provide a conversational summary based on the context of the user's query and the actions taken as per the API calls. The summary should be concise and informative, delivered in a few sentences to give the user a clear understanding of the results and actions taken.
+
+User's query:
+{query_str}
+
+Summary of actions taken:
+{actions_taken_str}
+
+Conversational summary:
+"""
+
 
 def gen_context_str(course_strs, teachers_info):
     res = ""
