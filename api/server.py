@@ -91,6 +91,9 @@ Output: Writing enhancement courses for engineering students, focus on technical
 
 Input: Looking for a beginner's course in psychology.
 Output: Introductory courses in psychology, suitable for beginners. Topics may include fundamentals of human behavior, cognitive processes, and introductory social psychology.
+
+User's query:
+{query_str}
 """
 
 prompt_2 = """
