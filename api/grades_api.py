@@ -2,6 +2,7 @@ from flask import Flask, jsonify, request
 from past_grades_other import ExcelDataProcessorOther
 from past_grades import ExcelDataProcessor
 # from rate_my_professor import professor
+import numpy as np
 import json
 
 app = Flask(__name__)
@@ -96,6 +97,30 @@ def get_average_grade_of_class():
 
     json_results = json.dumps(results, default=set_default)
 
+    return jsonify(json_results)
+
+@app.route('/get_distrbution_of_class', methods=['GET', 'POST'])
+def get_distrbution_of_class():
+    if request.method == 'GET':
+        teacher_name = request.args.get('teacher_name')
+        course_number = request.args.get('course_number')
+        subject = request.args.get('subject')
+    elif request.method == 'POST':
+        data = request.get_json()
+        teacher_name = data.get('teacher_name')
+        course_number = data.get('course_number')
+        subject = data.get('subject')
+    else:
+        return jsonify({'error': 'Invalid request method.'}), 400
+
+    results = {}
+
+    for sheet_name, data_processor_class in data_processors.items():
+        processor_instance = data_processor_class(r"Course Grade Distribution - Term Sum16 through Spring23.xlsx", sheet_name)
+        result = processor_instance.get_average_grade_of_class(int(course_number), subject)
+        results[sheet_name] = result
+    avg_arr = np.mean(results, axis=0)
+    json_results = json.dumps(avg_arr, default=set_default)
     return jsonify(json_results)
 
 # @app.route('/rate_my_professor', methods=['GET', 'POST'])

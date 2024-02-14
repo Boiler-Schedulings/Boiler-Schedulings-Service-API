@@ -28,6 +28,16 @@ class ExcelDataProcessor:
         selected_info = self.excel_data.loc[course_subject_rows, ['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E', 'F']].values
         return selected_info
 
+    def get_distribution_by_subject_and_course(self, course_number, subject):
+        if self.excel_data is None:
+            print("Error: Data not loaded.")
+            return None
+
+        course_subject_rows = (self.excel_data['Course Number'] == course_number) & (self.excel_data['Subject'].str.strip().str.lower() == subject.lower())
+        selected_info = self.excel_data.loc[course_subject_rows, ['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E', 'F']].values
+        avg_arr = np.mean(selected_info, axis=0)
+        return avg_arr
+
     def get_average_grade_by_teacher(self, teacher_name, course_number, subject):
         if self.excel_data is None:
             print("Error: Data not loaded.")
@@ -103,11 +113,15 @@ class ExcelDataProcessor:
 file_path = r"Course Grade Distribution - Term Sum16 through Spring23.xlsx"
 sheet_name = 'Spring 2023'
 
+
 data_processor = ExcelDataProcessor(file_path, sheet_name)
-#info = data_processor.get_info_by_subject_and_course(35201, 'AAE')
+info = data_processor.get_info_by_subject_and_course(35201, 'AAE')
+info_avg = data_processor.get_distribution_by_subject_and_course(35201, 'AAE')
 #average_class_grade = data_processor.get_average_grade_of_class(35201, 'AAE')
-teacher = data_processor.get_average_grade_by_teacher('Mishra, Ritik K.', 20401,'AAE')
-print(teacher)
+#teacher = data_processor.get_average_grade_by_teacher('Mishra, Ritik K.', 20401,'AAE')
+print(info)
+print('xxxxxxxxxxxx')
+print(info_avg)
 """if average_class_grade is not None:
     print(f"Average GPA of the Class: {average_class_grade}")
 

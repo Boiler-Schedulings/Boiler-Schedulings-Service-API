@@ -35,8 +35,20 @@ class ExcelDataProcessorOther:
         selected_info = self.excel_data.loc[
             course_subject_rows, (['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E',
                                   'F'], '% of Total')].values
+        return selected_info
+
+    def get_info_by_subject_and_course(self, course_number, subject):
+        if self.excel_data is None:
+            print("Error: Data not loaded.")
+            return None
+
+        course_subject_rows = (self.excel_data[('Unnamed: 2_level_0', 'Course Number')]== course_number) & (self.excel_data[('Unnamed: 0_level_0', 'Subject')].str.strip().str.lower() == subject.lower())
+        selected_info = self.excel_data.loc[
+            course_subject_rows, (['A', 'A-', 'A+', 'AU', 'B', 'B-', 'B+', 'C', 'C-', 'C+', 'D', 'D-', 'D+', 'E',
+                                  'F'], '% of Total')].values
         average_values = np.mean(selected_info, axis=0)
         return average_values
+
 
     def get_average_grade_by_teacher(self, teacher_name, course_number, subject):
         if self.excel_data is None:
@@ -108,7 +120,7 @@ class ExcelDataProcessorOther:
 
         return total_average_gpa / total_teachers
 
-"""
+
 # Example usage:
 file_path = r"Course Grade Distribution - Term Sum16 through Spring23.xlsx"
 sheet_name = 'Summer 2022'
@@ -118,8 +130,11 @@ course_number = 20401
 subject = 'AAE'
 
 stuff = data_processor.get_info_by_subject_and_course(49600, 'AT')
+print(stuff)
+stuff_avg = data_processor.get_info_by_subject_and_course(18200, 'CS')
+print(stuff_avg)
 
-teacher = data_processor.get_average_grade_by_teacher('Ropp, Timothy D.', 49600, 'AT')
+"""teacher = data_processor.get_average_grade_by_teacher('Ropp, Timothy D.', 49600, 'AT')
 print('......')
 print(teacher)
 average_class_grade = data_processor.get_average_grade_of_class(49600, 'AT')
